@@ -2,7 +2,7 @@ const express = require('express');
 
 const emojis = require('./emojis');
 const echos = require('./echos')
-const dnses = require('./dnses')
+const hosts = require('./hosts')
 
 const router = express.Router();
 
@@ -14,6 +14,6 @@ router.get('/', (req, res) => {
 
 router.use('/emojis', emojis);
 router.use('/echos', echos)
-router.use('/dns', dnses)
+router.use('/hosts', hosts)
 
 module.exports = router;
