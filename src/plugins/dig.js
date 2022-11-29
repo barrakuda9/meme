@@ -1,10 +1,14 @@
-const {execaCommandSync: exec} = require('execa')
+const {execaCommand: execa} = require('execa')
 
 const dig = async ({hostname, type, raw }) => {
 
-    const {stdout: data} = exec('dig', ['+short', hostname || 'localhost', type || 'a'])
+    const command = `+short ${hostname} ${type || 'a'}`
 
-    return raw === true ? data : `${String(data)}`.trim().split("\n")
+    console.warn(`==> ${command}`)
+
+    const { stdout } = await execa('dig', command)
+
+    return raw === true ? stdout : `${String(stdout)}`.trim().split("\n").map(v => (v || '').trim())
 }
 
 module.exports = dig
