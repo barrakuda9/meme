@@ -3,7 +3,7 @@ const redis = require('../services/redis')
 
 const ECHO_QUEUE_NAME = 'ECHO'
 
-const echoQueue = new Queue({redis: redis, name: ECHO_QUEUE_NAME})
+const echoQueue = new Queue(ECHO_QUEUE_NAME, {redis: redis})
 
 echoQueue.on('succeeded', (job) => console.log(`<EchoJob-${job.id}> succeeded`))
 
