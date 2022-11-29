@@ -1,6 +1,7 @@
 const Queue = require('bee-queue')
 const redis = require('../services/redis')
 const execa = require('execa')
+const { dig } = require('../plugins')
 
 const DNS_QUEUE_NAME = 'DNS'
 
@@ -14,14 +15,14 @@ dnsQueue.on('succeeded', (job, result) => {
     console.log(`<DnsJob-${job.id}> for ${result.hostname} succeeded: ${result.record}`)
 })
 
-dnsQueue.process((job, done) => {
+dnsQueue.process(async (job, done) => {
     const {hostname} = job.data
 
-    const {stdout: record} = execa.execaCommandSync('dig +short', [job.data.hostname, 'a'])
+    const records = await dig({hostname, type: 'a'})
 
-    console.log(`--> [${job.data.hostname}] = ${record}`)
+    console.log(`--> [${job.data.hostname}] = ${records.length}`)
 
-    return done(null, {hostname, record})
+    return done(null, {hostname, records})
 })
 
 module.exports = { DNS_QUEUE_NAME, dnsQueue }

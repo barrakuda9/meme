@@ -9,9 +9,9 @@ router.get('/:hostname?', async (req, res) => {
     const job = await dnsQueue.createJob({ hostname: req.params.hostname }).save()
   
     job.on('succeeded', (result) => {
-      console.log(`--> A-record for ${job.data.hostname} is ${result.record}`)
+      console.log(`--> A-record for ${job.data.hostname} is ${result.records[0]}`)
 
-      res.json({hostname: job.data.hostname, record: result.record })
+      res.json({hostname: job.data.hostname, record: result.records[0] })
     })
 });
 
