@@ -6,15 +6,22 @@ const DNS_QUEUE_NAME = 'DNS'
 
 const dnsQueue = new Queue(DNS_QUEUE_NAME, {redis: redis})
 
-dnsQueue.on('succeeded', (job) => console.log(`<DnsJob-${job.id}> for ${job.data.hostname} succeeded: ${job.data.value}`))
+dnsQueue.on('ready', () => console.log('Ready!'))
 
-dnsQueue.process(async (job, done) => {
+dnsQueue.on('failed', (job, err) => console.error(`<DnsJob-${job.id}> failed: ${err.name} (${err.message})`))
 
-    const value = execa.execaCommandSync('dig +short', [job.data.hostname, 'a']).split('\n')
+dnsQueue.on('succeeded', (job, result) => {
+    console.log(`<DnsJob-${job.id}> for ${result.hostname} succeeded: ${result.record}`)
+})
 
-    console.log(`--> [${job.data.hostname}] = ${value.stdout}`)
+dnsQueue.process((job, done) => {
+    const {hostname} = job.data
 
-    return done(null, {hostname: job.data.hostname, record: value.stdout})
+    const {stdout: record} = execa.execaCommandSync('dig +short', [job.data.hostname, 'a'])
+
+    console.log(`--> [${job.data.hostname}] = ${record}`)
+
+    return done(null, {hostname, record})
 })
 
 module.exports = { DNS_QUEUE_NAME, dnsQueue }

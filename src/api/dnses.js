@@ -3,17 +3,16 @@ const { dnsQueue } = require('../queues/dns');
 
 const router = express.Router();
 
-router.get('/:hostname?', (req, res) => {
+router.get('/:hostname?', async (req, res) => {
+    console.log(`requesting dns`)
 
-    const job = dnsQueue.createJob({ hostname: req.params.hostname || undefined })
-
+    const job = await dnsQueue.createJob({ hostname: req.params.hostname }).save()
+  
     job.on('succeeded', (result) => {
-      console.dir({data: result || {}, jobData: job.data})
+      console.log(`--> A-record for ${job.data.hostname} is ${result.record}`)
 
       res.json({hostname: job.data.hostname, record: result.record })
     })
-
-    job.save()//.then(output => res.json(output.data))
 });
 
 module.exports = router;
