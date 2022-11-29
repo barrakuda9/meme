@@ -7,7 +7,6 @@ require('dotenv').config();
 
 const middlewares = require('./middlewares');
 const api = require('./api');
-const { echoQueue } = require('./queues/echo');
 
 const app = express();
 
@@ -20,12 +19,6 @@ app.get('/', (req, res) => {
   res.json({
     message: '🦄🌈✨👋🌎🌍🌏✨🌈🦄',
   });
-});
-
-app.get('/echo/:message', (req, res) => {
-  echoQueue.createJob({ message: req.params.message || 'Hello, world!1!' }).save().then((result) => {
-    res.json(result.data)
-  })
 });
 
 app.use('/api/v1', api);
